@@ -10,29 +10,29 @@
 	<string>SHLineGraphView</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>6DF3E1AD-C96F-4EC5-ACB8-23D2D4243EFF</key>
-		<string>https://github.com/grevolution/SHLineGraphView.git</string>
+		<key>6965BFA88C986BC4CCD039A7D5D2EDF581C07EF0</key>
+		<string>github.com:appunite/SHLineGraphView.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>SHLineGraphView.xcodeproj/project.xcworkspace</string>
+	<string>SHLineGraphView.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>6DF3E1AD-C96F-4EC5-ACB8-23D2D4243EFF</key>
+		<key>6965BFA88C986BC4CCD039A7D5D2EDF581C07EF0</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/grevolution/SHLineGraphView.git</string>
+	<string>github.com:appunite/SHLineGraphView.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>6DF3E1AD-C96F-4EC5-ACB8-23D2D4243EFF</string>
+	<string>6965BFA88C986BC4CCD039A7D5D2EDF581C07EF0</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>6DF3E1AD-C96F-4EC5-ACB8-23D2D4243EFF</string>
+			<string>6965BFA88C986BC4CCD039A7D5D2EDF581C07EF0</string>
 			<key>IDESourceControlWCCName</key>
 			<string>SHLineGraphView</string>
 		</dict>

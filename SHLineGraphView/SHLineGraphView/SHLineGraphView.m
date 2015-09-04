@@ -242,34 +242,61 @@
 }
 
 - (void)drawXLabels:(SHPlot *)plot {
-  int xIntervalCount = _xAxisValues.count;
-  double xIntervalInPx = PLOT_WIDTH / _xAxisValues.count;
-  
-  //initialize actual x points values where the circle will be
-  plot.xPoints = calloc(sizeof(CGPoint), xIntervalCount);
-  
-  for(int i=0; i < xIntervalCount; i++){
-    CGPoint currentLabelPoint = CGPointMake((xIntervalInPx * i) + _leftMarginToLeave, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE);
-    CGRect xLabelFrame = CGRectMake(currentLabelPoint.x , currentLabelPoint.y, xIntervalInPx, BOTTOM_MARGIN_TO_LEAVE);
+    int xIntervalCount = (int)_xAxisValues.count;
     
-    plot.xPoints[i] = CGPointMake((int) xLabelFrame.origin.x + (xLabelFrame.size.width /2) , (int) 0);
+    NSDictionary *firstXValue = [_xAxisValues firstObject];
+    CGFloat oneValueWidth = [[firstXValue.allValues firstObject] sizeWithAttributes:@{NSFontAttributeName : (UIFont *)_themeAttributes[kXAxisLabelFontKey]}].width;
     
-    UILabel *xAxisLabel = [[UILabel alloc] initWithFrame:xLabelFrame];
-    xAxisLabel.backgroundColor = [UIColor clearColor];
-    xAxisLabel.font = (UIFont *)_themeAttributes[kXAxisLabelFontKey];
+    CGFloat plotWidth = oneValueWidth * xIntervalCount + 5.0f * (xIntervalCount - 1);
     
-    xAxisLabel.textColor = (UIColor *)_themeAttributes[kXAxisLabelColorKey];
-    xAxisLabel.textAlignment = NSTextAlignmentCenter;
+    // initialize actual x points values where the circle will be
+    plot.xPoints = calloc(sizeof(CGPoint), xIntervalCount);
     
-    NSDictionary *dic = [_xAxisValues objectAtIndex:i];
-    __block NSString *xLabel = nil;
-    [dic enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-      xLabel = (NSString *)obj;
+    // create plot
+    [self createXAxisValuesLabels:_xAxisValues plot:plot oneValueWidth:oneValueWidth showAllValues:plotWidth < PLOT_WIDTH];
+}
+
+- (void)createXAxisValuesLabels:(NSArray *)xValues plot:(SHPlot *)plot  oneValueWidth:(CGFloat)oneValueWidth showAllValues:(BOOL)showAllValues {
+    __block SHPlot *_plot = plot;
+    double xIntervalInPx = PLOT_WIDTH / _xAxisValues.count;
+    
+    [xValues enumerateObjectsUsingBlock:^(NSDictionary *valueDic, NSUInteger idx, BOOL *stop) {
+        NSString *value = [NSString stringWithFormat:@"%@", valueDic.allValues.firstObject];
+        
+        CGPoint valueLabelPosition = CGPointMake((xIntervalInPx * idx) + _leftMarginToLeave, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE);
+        CGRect valueLabelFrame = CGRectMake(valueLabelPosition.x, valueLabelPosition.y, oneValueWidth, BOTTOM_MARGIN_TO_LEAVE);
+        
+        _plot.xPoints[idx] = CGPointMake((int) valueLabelFrame.origin.x + (valueLabelFrame.size.width /2) , (int) 0);
+        
+        UILabel *valueLabel = [[UILabel alloc] initWithFrame:valueLabelFrame];
+        valueLabel.backgroundColor = [UIColor clearColor];
+        valueLabel.font = (UIFont *)_themeAttributes[kXAxisLabelFontKey];
+        valueLabel.textColor = (UIColor *)_themeAttributes[kXAxisLabelColorKey];
+        valueLabel.textAlignment = NSTextAlignmentCenter;
+        valueLabel.text = value;
+        
+        if (showAllValues) {
+            [self addSubview:valueLabel];
+            
+        } else {
+            
+            if (xValues.count % 2 == 0) {
+                
+                CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
+                NSInteger littleLessThenMiddle = floor(middle) - 1;
+                NSInteger littleMoreThenMiddle = ceil(middle) + 1;
+                
+                if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
+                    [self addSubview:valueLabel];
+                }
+                
+            } else {
+                if (idx == 0 || idx % 2 == 0 || idx == xValues.count - 1) {
+                    [self addSubview:valueLabel];
+                }
+            }
+        }
     }];
-    
-    xAxisLabel.text = [NSString stringWithFormat:@"%@", xLabel];
-    [self addSubview:xAxisLabel];
-  }
 }
 
 - (void)drawYLabels:(SHPlot *)plot {
@@ -292,7 +319,7 @@
       yAxisLabel.textAlignment = NSTextAlignmentCenter;
       float val = (yIntervalValue * (10 - i));
       if(val > 0){
-        yAxisLabel.text = [NSString stringWithFormat:@"%.1f%@", val, _yAxisSuffix];
+          yAxisLabel.text = [NSString stringWithFormat:@"%.1f%@", val, _yAxisSuffix ?: @""];
       } else {
         yAxisLabel.text = [NSString stringWithFormat:@"%.0f", val];
       }
