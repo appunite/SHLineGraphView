@@ -245,7 +245,8 @@
     int xIntervalCount = (int)_xAxisValues.count;
     
     NSDictionary *firstXValue = [_xAxisValues firstObject];
-    CGFloat oneValueWidth = [[firstXValue.allValues firstObject] sizeWithAttributes:@{NSFontAttributeName : (UIFont *)_themeAttributes[kXAxisLabelFontKey]}].width;
+    NSString *value = [NSString stringWithFormat:@"%@", firstXValue.allValues.firstObject];
+    CGFloat oneValueWidth = [value sizeWithAttributes:@{NSFontAttributeName : (UIFont *)_themeAttributes[kXAxisLabelFontKey]}].width;
     
     CGFloat plotWidth = oneValueWidth * xIntervalCount + 5.0f * (xIntervalCount - 1);
     
@@ -319,7 +320,7 @@
       yAxisLabel.textAlignment = NSTextAlignmentCenter;
       float val = (yIntervalValue * (10 - i));
       if(val > 0){
-          yAxisLabel.text = [NSString stringWithFormat:@"%.1f%@", val, _yAxisSuffix ?: @""];
+          yAxisLabel.text = [NSString stringWithFormat:@"%.0f%@", val, _yAxisSuffix ?: @""];
       } else {
         yAxisLabel.text = [NSString stringWithFormat:@"%.0f", val];
       }
