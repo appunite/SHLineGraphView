@@ -259,13 +259,16 @@
 
 - (void)createXAxisValuesLabels:(NSArray *)xValues plot:(SHPlot *)plot  oneValueWidth:(CGFloat)oneValueWidth showAllValues:(BOOL)showAllValues {
     __block SHPlot *_plot = plot;
-    double xIntervalInPx = PLOT_WIDTH / _xAxisValues.count;
+    
+    CGFloat offsetBetweenLabels = (PLOT_WIDTH - oneValueWidth * xValues.count) / (xValues.count - 1);
+    __block CGFloat offset = _leftMarginToLeave;
     
     [xValues enumerateObjectsUsingBlock:^(NSDictionary *valueDic, NSUInteger idx, BOOL *stop) {
         NSString *value = [NSString stringWithFormat:@"%@", valueDic.allValues.firstObject];
         
-        CGPoint valueLabelPosition = CGPointMake((xIntervalInPx * idx) + _leftMarginToLeave, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE);
+        CGPoint valueLabelPosition = CGPointMake(offset, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE);
         CGRect valueLabelFrame = CGRectMake(valueLabelPosition.x, valueLabelPosition.y, oneValueWidth, BOTTOM_MARGIN_TO_LEAVE);
+        offset = CGRectGetMaxX(valueLabelFrame) + offsetBetweenLabels;
         
         _plot.xPoints[idx] = CGPointMake((int) valueLabelFrame.origin.x + (valueLabelFrame.size.width /2) , (int) 0);
         
