@@ -322,12 +322,11 @@
       yAxisLabel.font = (UIFont *)_themeAttributes[kYAxisLabelFontKey];
       yAxisLabel.textColor = (UIColor *)_themeAttributes[kYAxisLabelColorKey];
       yAxisLabel.textAlignment = NSTextAlignmentCenter;
-      float val = (yIntervalValue * (10 - i));
-
-        CGFloat formattedValue = ROUND_TO_NUMBER * ceil((val / ROUND_TO_NUMBER) + 0.5);
+        
+        float val = (yIntervalValue * (10 - i));
         
         if(val > 0){
-            yAxisLabel.text = [[self.class numberFormatter] stringFromNumber:@(ceil(formattedValue))];
+            yAxisLabel.text = [[self.class numberFormatter] stringFromNumber:@(ceil(val))];
         } else {
             yAxisLabel.text = [NSString stringWithFormat:@"%.0f", val];
         }
