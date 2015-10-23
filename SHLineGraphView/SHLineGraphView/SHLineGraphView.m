@@ -29,6 +29,7 @@
 #define BOTTOM_MARGIN_TO_LEAVE 30.0
 #define TOP_MARGIN_TO_LEAVE 30.0
 #define INTERVAL_COUNT 9
+#define ROUND_TO_NUMBER 100
 #define PLOT_WIDTH (self.bounds.size.width - _leftMarginToLeave)
 
 #define kAssociatedPlotObject @"kAssociatedPlotObject"
@@ -322,11 +323,15 @@
       yAxisLabel.textColor = (UIColor *)_themeAttributes[kYAxisLabelColorKey];
       yAxisLabel.textAlignment = NSTextAlignmentCenter;
       float val = (yIntervalValue * (10 - i));
-      if(val > 0){
-          yAxisLabel.text = [NSString stringWithFormat:@"%.0f%@", val, _yAxisSuffix ?: @""];
-      } else {
-        yAxisLabel.text = [NSString stringWithFormat:@"%.0f", val];
-      }
+
+        CGFloat formattedValue = ROUND_TO_NUMBER * ceil((val / ROUND_TO_NUMBER) + 0.5);
+        
+        if(val > 0){
+            yAxisLabel.text = [[self.class numberFormatter] stringFromNumber:@(ceil(formattedValue))];
+        } else {
+            yAxisLabel.text = [NSString stringWithFormat:@"%.0f", val];
+        }
+        
       [yAxisLabel sizeToFit];
       CGRect newLabelFrame = CGRectMake(0, currentLinePoint.y - (yAxisLabel.layer.frame.size.height / 2), yAxisLabel.frame.size.width, yAxisLabel.layer.frame.size.height);
       yAxisLabel.frame = newLabelFrame;
@@ -408,6 +413,24 @@
 		NSLog(@"plotting label is not available for this point");
 	}
 }
+
+
+#pragma mark -
+#pragma mark Private
+
++ (NSNumberFormatter *)numberFormatter {
+    static NSNumberFormatter *numberFormatter = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        numberFormatter = [[NSNumberFormatter alloc] init];
+        [numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+        [numberFormatter setSecondaryGroupingSize:0];
+        [numberFormatter setUsesSignificantDigits:YES];
+    });
+    
+    return numberFormatter;
+}
+
 
 #pragma mark - Theme Key Extern Keys
 
