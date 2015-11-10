@@ -28,7 +28,7 @@
 
 #define BOTTOM_MARGIN_TO_LEAVE 30.0
 #define TOP_MARGIN_TO_LEAVE 30.0
-#define INTERVAL_COUNT 9
+#define INTERVAL_COUNT 10
 #define ROUND_TO_NUMBER 100
 #define PLOT_WIDTH (self.bounds.size.width - _leftMarginToLeave)
 
@@ -181,7 +181,7 @@
     
     //x value
     double height = self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE;
-    double y = height - ((height / ([_yAxisRange doubleValue] + yIntervalValue)) * [_value doubleValue]);
+      double y = height - [self valueInPxforValue:_value.floatValue];
     (plot.xPoints[xIndex]).x = ceil((plot.xPoints[xIndex]).x);
     (plot.xPoints[xIndex]).y = ceil(y);
   }];
@@ -255,35 +255,17 @@
     plot.xPoints = calloc(sizeof(CGPoint), xIntervalCount);
     
     // create plot
-    [self createXAxisValuesLabels:_xAxisValues plot:plot oneValueWidth:oneValueWidth showAllValues:plotWidth < PLOT_WIDTH];
+    [self createXAxisValuesLabels:_xAxisValues plot:plot oneValueWidth:oneValueWidth showAllValues:plotWidth < PLOT_WIDTH showThreeValues:(plotWidth / oneValueWidth) > 10];
 }
 
-- (UILabel *)createXLabelWithText:(NSString *)text frame:(CGRect)frame {
-    
-    UILabel *valueLabel = [[UILabel alloc] initWithFrame:frame];
-    valueLabel.backgroundColor = [UIColor clearColor];
-    valueLabel.font = (UIFont *)_themeAttributes[kXAxisLabelFontKey];
-    valueLabel.textColor = (UIColor *)_themeAttributes[kXAxisLabelColorKey];
-    valueLabel.textAlignment = NSTextAlignmentCenter;
-    valueLabel.text = text;
-    
-    return valueLabel;
-}
 
-- (void)createXAxisValuesLabels:(NSArray *)xValues plot:(SHPlot *)plot  oneValueWidth:(CGFloat)oneValueWidth showAllValues:(BOOL)showAllValues {
+
+- (void)createXAxisValuesLabels:(NSArray *)xValues plot:(SHPlot *)plot  oneValueWidth:(CGFloat)oneValueWidth showAllValues:(BOOL)showAllValues showThreeValues:(BOOL)showThreeValues {
     __block SHPlot *_plot = plot;
     
     CGFloat offsetBetweenLabels = (PLOT_WIDTH - oneValueWidth * xValues.count) / (xValues.count - 1);
-    
-    if (self.oneDayLineGraphEnabled) {
-        CGRect valueLabelFrame = CGRectMake(CGRectGetMidX(self.frame) - 0.5f * oneValueWidth, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE, oneValueWidth, BOTTOM_MARGIN_TO_LEAVE);
-        NSString *text = [[[xValues firstObject] allValues] firstObject];
-        
-        [self addSubview:[self createXLabelWithText:text frame:valueLabelFrame]];
-        
-    }
-    
     __block CGFloat offset = _leftMarginToLeave;
+    
     [xValues enumerateObjectsUsingBlock:^(NSDictionary *valueDic, NSUInteger idx, BOOL *stop) {
         NSString *value = [NSString stringWithFormat:@"%@", valueDic.allValues.firstObject];
         
@@ -293,22 +275,33 @@
         
         _plot.xPoints[idx] = CGPointMake((int) valueLabelFrame.origin.x + (valueLabelFrame.size.width /2) , (int) 0);
         
+        UILabel *valueLabel = [[UILabel alloc] initWithFrame:valueLabelFrame];
+        valueLabel.backgroundColor = [UIColor clearColor];
+        valueLabel.font = (UIFont *)_themeAttributes[kXAxisLabelFontKey];
+        valueLabel.textColor = (UIColor *)_themeAttributes[kXAxisLabelColorKey];
+        valueLabel.textAlignment = NSTextAlignmentCenter;
+        valueLabel.text = value;
         
-        if (!self.oneDayLineGraphEnabled) {
-            UILabel *valueLabel = [self createXLabelWithText:value frame:valueLabelFrame];
+        if (showAllValues) {
+            [self addSubview:valueLabel];
             
-            if (showAllValues) {
-                [self addSubview:valueLabel];
+        } else {
+            
+            if (xValues.count % 2 == 0) {
+                
+                CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
+                NSInteger littleLessThenMiddle = floor(middle) - 1;
+                NSInteger littleMoreThenMiddle = ceil(middle) + 1;
+                
+                if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
+                    [self addSubview:valueLabel];
+                }
                 
             } else {
-                
-                if (xValues.count % 2 == 0) {
+                if (showThreeValues) {
+                    NSInteger middle = (xValues.count - 1) / 2;
                     
-                    CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
-                    NSInteger littleLessThenMiddle = floor(middle) - 1;
-                    NSInteger littleMoreThenMiddle = ceil(middle) + 1;
-                    
-                    if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
+                    if (idx == 0 || idx == middle || idx == xValues.count - 1) {
                         [self addSubview:valueLabel];
                     }
                     
@@ -320,7 +313,16 @@
             }
         }
     }];
+}
+
+- (CGFloat)valueInPxforValue:(CGFloat)value {
+    double intervalInPx = (self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE ) / (INTERVAL_COUNT +1);
+    NSInteger range = _yAxisRange.floatValue / (INTERVAL_COUNT);
     
+    CGFloat a = floor(value / range);
+    CGFloat b = (value - a);
+    
+    return floor(value / range) * intervalInPx + ((b / range) * intervalInPx);
 }
 
 - (void)drawYLabels:(SHPlot *)plot {
@@ -342,7 +344,7 @@
       yAxisLabel.textColor = (UIColor *)_themeAttributes[kYAxisLabelColorKey];
       yAxisLabel.textAlignment = NSTextAlignmentCenter;
         
-        float val = (yIntervalValue * (10 - i));
+        float val = (yIntervalValue * (11 - i));
         
         if(val > 0){
             yAxisLabel.text = [[self.class numberFormatter] stringFromNumber:@(ceil(val))];
