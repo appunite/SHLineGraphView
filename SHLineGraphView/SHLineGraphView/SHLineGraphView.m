@@ -259,11 +259,31 @@
 }
 
 
+- (UILabel *)createXLabelWithText:(NSString *)text frame:(CGRect)frame {
+    
+    UILabel *valueLabel = [[UILabel alloc] initWithFrame:frame];
+    valueLabel.backgroundColor = [UIColor clearColor];
+    valueLabel.font = (UIFont *)_themeAttributes[kXAxisLabelFontKey];
+    valueLabel.textColor = (UIColor *)_themeAttributes[kXAxisLabelColorKey];
+    valueLabel.textAlignment = NSTextAlignmentCenter;
+    valueLabel.text = text;
+    
+    return valueLabel;
+}
 
 - (void)createXAxisValuesLabels:(NSArray *)xValues plot:(SHPlot *)plot  oneValueWidth:(CGFloat)oneValueWidth showAllValues:(BOOL)showAllValues showThreeValues:(BOOL)showThreeValues {
     __block SHPlot *_plot = plot;
     
     CGFloat offsetBetweenLabels = (PLOT_WIDTH - oneValueWidth * xValues.count) / (xValues.count - 1);
+    
+    if (self.oneDayLineGraphEnabled) {
+        CGRect valueLabelFrame = CGRectMake(CGRectGetMidX(self.frame) - 0.5f * oneValueWidth, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE, oneValueWidth, BOTTOM_MARGIN_TO_LEAVE);
+        NSString *text = [[[xValues firstObject] allValues] firstObject];
+        
+        [self addSubview:[self createXLabelWithText:text frame:valueLabelFrame]];
+        
+    }
+    
     __block CGFloat offset = _leftMarginToLeave;
     
     [xValues enumerateObjectsUsingBlock:^(NSDictionary *valueDic, NSUInteger idx, BOOL *stop) {
@@ -275,39 +295,36 @@
         
         _plot.xPoints[idx] = CGPointMake((int) valueLabelFrame.origin.x + (valueLabelFrame.size.width /2) , (int) 0);
         
-        UILabel *valueLabel = [[UILabel alloc] initWithFrame:valueLabelFrame];
-        valueLabel.backgroundColor = [UIColor clearColor];
-        valueLabel.font = (UIFont *)_themeAttributes[kXAxisLabelFontKey];
-        valueLabel.textColor = (UIColor *)_themeAttributes[kXAxisLabelColorKey];
-        valueLabel.textAlignment = NSTextAlignmentCenter;
-        valueLabel.text = value;
+        UILabel *valueLabel = [self createXLabelWithText:value frame:valueLabelFrame];
         
-        if (showAllValues) {
-            [self addSubview:valueLabel];
-            
-        } else {
-            
-            if (xValues.count % 2 == 0) {
-                
-                CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
-                NSInteger littleLessThenMiddle = floor(middle) - 1;
-                NSInteger littleMoreThenMiddle = ceil(middle) + 1;
-                
-                if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
-                    [self addSubview:valueLabel];
-                }
+        if (!self.oneDayLineGraphEnabled) {
+            if (showAllValues) {
+                [self addSubview:valueLabel];
                 
             } else {
-                if (showThreeValues) {
-                    NSInteger middle = (xValues.count - 1) / 2;
+                
+                if (xValues.count % 2 == 0) {
                     
-                    if (idx == 0 || idx == middle || idx == xValues.count - 1) {
+                    CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
+                    NSInteger littleLessThenMiddle = floor(middle) - 1;
+                    NSInteger littleMoreThenMiddle = ceil(middle) + 1;
+                    
+                    if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
                         [self addSubview:valueLabel];
                     }
                     
                 } else {
-                    if (idx == 0 || idx % 2 == 0 || idx == xValues.count - 1) {
-                        [self addSubview:valueLabel];
+                    if (showThreeValues) {
+                        NSInteger middle = (xValues.count - 1) / 2;
+                        
+                        if (idx == 0 || idx == middle || idx == xValues.count - 1) {
+                            [self addSubview:valueLabel];
+                        }
+                        
+                    } else {
+                        if (idx == 0 || idx % 2 == 0 || idx == xValues.count - 1) {
+                            [self addSubview:valueLabel];
+                        }
                     }
                 }
             }
