@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         	= "SHLineGraphView"
-  s.version      	= "1.0.6"
+  s.version      	= "1.0.12"
   s.summary      	= "`SHLineGraphView` is a simple and efficient reusable UIView subview which you can use to create line graphs."
 
   s.description  	= <<-DESC
