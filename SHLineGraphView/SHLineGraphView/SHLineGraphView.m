@@ -337,9 +337,9 @@
     NSInteger range = _yAxisRange.floatValue / (INTERVAL_COUNT);
     
     CGFloat a = floor(value / range);
-    CGFloat b = (value - a);
+    NSInteger b = (NSInteger)value % range;
     
-    return floor(value / range) * intervalInPx + ((b / range) * intervalInPx);
+    return a * intervalInPx + ((CGFloat)b/range) * intervalInPx;
 }
 
 - (void)drawYLabels:(SHPlot *)plot {
