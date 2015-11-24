@@ -364,7 +364,7 @@
         float val = (yIntervalValue * (11 - i));
         
         if(val > 0){
-            yAxisLabel.text = [[self.class numberFormatter] stringFromNumber:@(ceil(val))];
+            yAxisLabel.text = [self stringFromNumber:@(ceil(val))];
         } else {
             yAxisLabel.text = [NSString stringWithFormat:@"%.0f", val];
         }
@@ -455,19 +455,35 @@
 #pragma mark -
 #pragma mark Private
 
-+ (NSNumberFormatter *)numberFormatter {
-    static NSNumberFormatter *numberFormatter = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        numberFormatter = [[NSNumberFormatter alloc] init];
-        [numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
-        [numberFormatter setSecondaryGroupingSize:0];
-        [numberFormatter setUsesSignificantDigits:YES];
-    });
+- (NSString *)stringFromNumber:(NSNumber *)number {
+    if (!number)
+        return @"";
     
-    return numberFormatter;
+    long long num = [number longLongValue];
+    
+    int s = ( (num < 0) ? -1 : (num > 0) ? 1 : 0 );
+    NSString *sign = (s == -1 ? @"-" : @"" );
+    
+    num = llabs(num);
+    
+    if (num < 1000) {
+        return [NSString stringWithFormat:@"%@%lld",sign,num];
+    }
+    
+    int exp = (int) (log(num) / log(1000));
+    
+    NSArray *units = @[@"K",@"M",@"G",@"T",@"P",@"E"];
+    
+    double formattedValue = ((double)num / (double)pow(1000, exp));
+    
+    int decimalPart = ((int)round(formattedValue * 10) % 10);
+    
+    if (decimalPart == 0) {
+        return [NSString stringWithFormat:@"%@%.0f%@",sign, formattedValue, [units objectAtIndex:(exp-1)]];
+    }
+    
+    return [NSString stringWithFormat:@"%@%.1f%@",sign, formattedValue, [units objectAtIndex:(exp-1)]];
 }
-
 
 #pragma mark - Theme Key Extern Keys
 
