@@ -245,10 +245,7 @@
 - (void)drawXLabels:(SHPlot *)plot {
     int xIntervalCount = (int)_xAxisValues.count;
     
-    NSDictionary *firstXValue = [_xAxisValues firstObject];
-    NSString *value = [NSString stringWithFormat:@"%@", firstXValue.allValues.firstObject];
-    CGFloat oneValueWidth = [value sizeWithAttributes:@{NSFontAttributeName : (UIFont *)_themeAttributes[kXAxisLabelFontKey]}].width;
-    
+    CGFloat oneValueWidth = [self maxXAxcisValueWidth];
     CGFloat plotWidth = oneValueWidth * xIntervalCount + 5.0f * (xIntervalCount - 1);
     
     // initialize actual x points values where the circle will be
@@ -275,15 +272,6 @@
     __block SHPlot *_plot = plot;
     
     CGFloat offsetBetweenLabels = (PLOT_WIDTH - oneValueWidth * xValues.count) / (xValues.count - 1);
-    
-    if (self.oneDayLineGraphEnabled) {
-        CGRect valueLabelFrame = CGRectMake(CGRectGetMidX(self.frame) - 0.5f * oneValueWidth, self.bounds.size.height - BOTTOM_MARGIN_TO_LEAVE, oneValueWidth, BOTTOM_MARGIN_TO_LEAVE);
-        NSString *text = [[[xValues firstObject] allValues] firstObject];
-        
-        [self addSubview:[self createXLabelWithText:text frame:valueLabelFrame]];
-        
-    }
-    
     __block CGFloat offset = _leftMarginToLeave;
     
     [xValues enumerateObjectsUsingBlock:^(NSDictionary *valueDic, NSUInteger idx, BOOL *stop) {
@@ -454,6 +442,21 @@
 
 #pragma mark -
 #pragma mark Private
+
+- (CGFloat)maxXAxcisValueWidth {
+    CGFloat max = 0.0f;
+    
+    for (NSDictionary *xValue in _xAxisValues) {
+        NSString *value = [NSString stringWithFormat:@"%@", xValue.allValues.firstObject];
+        CGFloat width = ceilf([value sizeWithAttributes:@{NSFontAttributeName : (UIFont *)_themeAttributes[kXAxisLabelFontKey]}].width);
+        
+        if (width > max) {
+            max = width;
+        }
+    }
+    
+    return max;
+}
 
 - (NSString *)stringFromNumber:(NSNumber *)number {
     if (!number)

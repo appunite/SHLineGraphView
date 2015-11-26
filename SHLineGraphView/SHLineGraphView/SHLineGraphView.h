@@ -26,9 +26,6 @@
 
 @interface SHLineGraphView : UIView
 
-// 
-@property (nonatomic, assign) BOOL oneDayLineGraphEnabled;
-
 /**
  *  an Array of dictionaries specifying the key/value pair where key is the object which will identify a particular
  *  x point on the x-axis line. and the value is the label which you want to show on x-axis against that point on x-axis.
