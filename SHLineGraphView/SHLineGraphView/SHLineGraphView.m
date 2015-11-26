@@ -285,34 +285,32 @@
         
         UILabel *valueLabel = [self createXLabelWithText:value frame:valueLabelFrame];
         
-        if (!self.oneDayLineGraphEnabled) {
-            if (showAllValues) {
-                [self addSubview:valueLabel];
+        if (showAllValues) {
+            [self addSubview:valueLabel];
+            
+        } else {
+            
+            if (xValues.count % 2 == 0) {
+                
+                CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
+                NSInteger littleLessThenMiddle = floor(middle) - 1;
+                NSInteger littleMoreThenMiddle = ceil(middle) + 1;
+                
+                if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
+                    [self addSubview:valueLabel];
+                }
                 
             } else {
-                
-                if (xValues.count % 2 == 0) {
+                if (showThreeValues) {
+                    NSInteger middle = (xValues.count - 1) / 2;
                     
-                    CGFloat middle = (CGFloat)(xValues.count - 1) / 2.0f;
-                    NSInteger littleLessThenMiddle = floor(middle) - 1;
-                    NSInteger littleMoreThenMiddle = ceil(middle) + 1;
-                    
-                    if (idx == 0 || idx == littleLessThenMiddle || idx == littleMoreThenMiddle || idx == xValues.count - 1) {
+                    if (idx == 0 || idx == middle || idx == xValues.count - 1) {
                         [self addSubview:valueLabel];
                     }
                     
                 } else {
-                    if (showThreeValues) {
-                        NSInteger middle = (xValues.count - 1) / 2;
-                        
-                        if (idx == 0 || idx == middle || idx == xValues.count - 1) {
-                            [self addSubview:valueLabel];
-                        }
-                        
-                    } else {
-                        if (idx == 0 || idx % 2 == 0 || idx == xValues.count - 1) {
-                            [self addSubview:valueLabel];
-                        }
+                    if (idx == 0 || idx % 2 == 0 || idx == xValues.count - 1) {
+                        [self addSubview:valueLabel];
                     }
                 }
             }
